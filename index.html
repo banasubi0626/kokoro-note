@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FDF2F5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="こころのノート">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0}img{max-width:100%}</style>
+<title>こころのノート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: one soft column (max 640px) with a cat companion, rounded "sticker" cards, a bottom tab bar like a phone app, and a "つらいとき" button that is always reachable. */
+:root {
+  --bg: #FDF2F5;
+  --surface: #FFFFFF;
+  --soft: #FBE1E8;
+  --ink: #4A3940;
+  --muted: #8A7480;
+  --line: #F2D3DC;
+  --accent: #F08FAF;
+  --accent-ink: #4A1F30;
+  --accent-deep: #C9557C;
+  --calm: #4E8C72;
+  --calm-soft: #DDF1E7;
+  --alert: #B04A62;
+  --alert-soft: #FCE0E6;
+  --shadow: 0 4px 0 #F4D5DE;
+  --cat: #F6CB9E;
+  --cat-patch: #E39D68;
+  --cat-inner: #F7A9BA;
+  --cat-line: #4A3940;
+  --cat-nose: #E9829F;
+  --font-display: "Kiwi Maru", "Hiragino Maru Gothic ProN", "Hiragino Sans", serif;
+  --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --radius: 22px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #271F2B; --surface: #33293A; --soft: #44364C; --ink: #F5E9EF; --muted: #C3AEBB;
+    --line: #4C3E55; --accent: #F5A6C1; --accent-ink: #3A1626; --accent-deep: #F7B9CE;
+    --calm: #A4DCC2; --calm-soft: #2D4239; --alert: #F2A7B7; --alert-soft: #4A2C36;
+    --shadow: 0 4px 0 #1C1520; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #271F2B; --surface: #33293A; --soft: #44364C; --ink: #F5E9EF; --muted: #C3AEBB;
+  --line: #4C3E55; --accent: #F5A6C1; --accent-ink: #3A1626; --accent-deep: #F7B9CE;
+  --calm: #A4DCC2; --calm-soft: #2D4239; --alert: #F2A7B7; --alert-soft: #4A2C36;
+  --shadow: 0 4px 0 #1C1520; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--bg); color: var(--ink); }
+body {
+  font-family: var(--font-body); font-size: 16px; line-height: 1.8; font-weight: 500;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cg fill='%23F08FAF' fill-opacity='.10' transform='translate(10 10) scale(.28) rotate(-15 50 50)'%3E%3Cellipse cx='50' cy='64' rx='22' ry='18'/%3E%3Cellipse cx='24' cy='40' rx='9' ry='11'/%3E%3Cellipse cx='41' cy='26' rx='9' ry='11'/%3E%3Cellipse cx='59' cy='26' rx='9' ry='11'/%3E%3Cellipse cx='76' cy='40' rx='9' ry='11'/%3E%3C/g%3E%3Cg fill='%23F08FAF' fill-opacity='.10' transform='translate(58 58) scale(.24) rotate(20 50 50)'%3E%3Cellipse cx='50' cy='64' rx='22' ry='18'/%3E%3Cellipse cx='24' cy='40' rx='9' ry='11'/%3E%3Cellipse cx='41' cy='26' rx='9' ry='11'/%3E%3Cellipse cx='59' cy='26' rx='9' ry='11'/%3E%3Cellipse cx='76' cy='40' rx='9' ry='11'/%3E%3C/g%3E%3C/svg%3E");
+}
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 130px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; text-wrap: balance; line-height: 1.45; margin: 0; }
+h1 { font-size: 1.55rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.08rem; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.stack-lg { display: flex; flex-direction: column; gap: 26px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+svg.cat, svg.paw { display: block; flex: none; }
+.cat-xs { width: 26px; height: 26px; }
+.cat-sm { width: 44px; height: 44px; }
+.cat-md { width: 78px; height: 78px; }
+.cat-lg { width: 110px; height: 110px; }
+
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 4px 18px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand small { color: var(--muted); font-size: .8rem; display: block; }
+
+.card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+.card.soft { background: var(--soft); border-color: transparent; }
+.card.calm { background: var(--calm-soft); border-color: transparent; box-shadow: none; }
+.label { font-size: .78rem; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+
+.hello { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: end; }
+.bubble { position: relative; background: var(--surface); border-radius: 20px; padding: 14px 16px; min-width: 0; }
+.bubble::before { content: ""; position: absolute; left: -9px; bottom: 18px; border: 10px solid transparent; border-right-color: var(--surface); border-left: 0; }
+.cat-wiggle { transform-origin: 50% 90%; animation: wiggle 4s ease-in-out infinite; }
+@keyframes wiggle { 0%, 88%, 100% { transform: rotate(0); } 92% { transform: rotate(-6deg); } 96% { transform: rotate(5deg); } }
+
+button, .btn { font: inherit; font-weight: 700; cursor: pointer; border-radius: 999px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); padding: 10px 20px; min-height: 46px; transition: transform .12s; }
+button:active { transform: translateY(2px); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid var(--accent-deep); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 3px 0 var(--accent-deep); }
+button.ghost { background: transparent; box-shadow: none; }
+button.danger { color: var(--alert); border-color: var(--alert); background: transparent; }
+button:disabled { opacity: .45; cursor: default; }
+.sos { background: var(--alert-soft); color: var(--alert); border-color: transparent; white-space: nowrap; }
+
+textarea, input[type="text"], input[type="date"] { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+textarea { min-height: 110px; resize: vertical; }
+input[type="range"] { width: 100%; accent-color: var(--accent-deep); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 700; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 6px 14px; min-height: 40px; font-size: .95rem; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 2px solid var(--line); border-radius: 22px 22px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 10; }
+nav.tabs .inner { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
+nav.tabs button { border: 0; border-radius: 0; background: transparent; color: var(--muted); padding: 8px 2px 10px; font-size: .76rem; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: none; min-height: 58px; }
+nav.tabs button .ic { width: 26px; height: 26px; display: grid; place-items: center; font-size: 1.1rem; line-height: 1; border-radius: 50%; }
+nav.tabs button[aria-current="page"] { color: var(--accent-deep); }
+nav.tabs button[aria-current="page"] .ic { background: var(--soft); }
+
+/* Wizard */
+.steps { display: flex; gap: 6px; align-items: center; }
+.steps svg { width: 28px; height: 28px; color: var(--line); }
+.steps svg.on { color: var(--accent); }
+.hint { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; background: var(--calm-soft); border-radius: 18px; padding: 12px 14px; color: var(--ink); font-size: .92rem; }
+.hint > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.emo-row { display: grid; grid-template-columns: 6.5em 1fr 3em; gap: 10px; align-items: center; }
+.emo-row output { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.dist { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 2px solid var(--line); border-radius: 18px; cursor: pointer; background: var(--surface); }
+.dist input { margin-top: 6px; width: 20px; height: 20px; accent-color: var(--accent-deep); flex: none; }
+.dist.on { border-color: var(--accent); background: var(--soft); }
+.dist b { display: block; }
+.dist .ex { color: var(--muted); font-size: .88rem; }
+
+/* Review */
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.stat .num { font-family: var(--font-display); font-size: 1.7rem; font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.bar-row { display: grid; grid-template-columns: 9em 1fr 2em; gap: 10px; align-items: center; font-size: .92rem; }
+.bar { height: 12px; border-radius: 6px; background: var(--soft); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.bar-row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.entry summary { cursor: pointer; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.entry summary::-webkit-details-marker { display: none; }
+.entry .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: .78rem; padding: 2px 10px; border-radius: 999px; background: var(--soft); color: var(--ink); }
+.tag.example { background: var(--calm-soft); color: var(--calm); font-weight: 700; }
+.entry dl { display: grid; gap: 10px; margin: 14px 0 0; }
+.entry dt { font-size: .8rem; color: var(--muted); }
+.entry dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty { display: flex; gap: 12px; align-items: center; }
+
+/* Calm tools */
+.breath-stage { display: grid; place-items: center; height: 240px; }
+.breath-circle { width: 130px; height: 130px; border-radius: 50%; background: var(--calm-soft); display: grid; place-items: center; transition: transform 4s ease-in-out; }
+.breath-circle.big { transform: scale(1.6); }
+.breath-circle svg { width: 92px; height: 92px; }
+#breath-label { text-align: center; font-family: var(--font-display); font-size: 1.15rem; color: var(--calm); min-height: 1.8em; }
+.dots { display: flex; gap: 10px; flex-wrap: wrap; }
+.dot { width: 48px; height: 48px; min-height: 48px; padding: 6px; border-radius: 50%; border: 2px dashed var(--calm); background: transparent; color: var(--calm-soft); box-shadow: none; }
+.dot svg { width: 100%; height: 100%; }
+.dot.on { border-style: solid; background: var(--calm-soft); color: var(--calm); }
+.vault-box { display: flex; gap: 12px; align-items: center; justify-content: center; height: 96px; border-radius: 18px; background: var(--soft); font-family: var(--font-display); color: var(--muted); transition: transform .4s; }
+.vault-box.shut { transform: scale(.94); }
+.kind-card { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+.kind-card p { font-family: var(--font-display); font-size: 1.15rem; line-height: 1.75; min-height: 3.6em; display: flex; align-items: center; }
+.thermo-msg { padding: 12px 14px; border-radius: 16px; background: var(--soft); }
+.thermo-msg.high { background: var(--alert-soft); color: var(--alert); }
+
+/* Guide */
+.guide summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.05rem; }
+.guide summary::-webkit-details-marker { display: none; }
+.guide summary::after { content: "＋"; margin-left: auto; color: var(--accent-deep); }
+.guide[open] summary::after { content: "−"; }
+.guide ol { margin: 14px 0 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 8px; }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--ink) 45%, transparent); z-index: 20; display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--surface); border-radius: 26px; max-width: 520px; width: 100%; max-height: 90vh; overflow: auto; padding: 24px; }
+.modal .cat { margin: 0 auto; }
+.notice { padding: 12px 14px; border-radius: 16px; background: var(--alert-soft); color: var(--alert); font-size: .92rem; }
+.toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 18px 8px 10px; border-radius: 999px; z-index: 30; font-size: .92rem; display: flex; gap: 8px; align-items: center; max-width: calc(100% - 32px); }
+.toast[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .breath-circle, .vault-box, button { transition: none; }
+  .breath-circle.big { transform: none; outline: 6px solid var(--calm); }
+  .cat-wiggle { animation: none; }
+}
+@media (max-width: 420px) {
+  .emo-row { grid-template-columns: 5.5em 1fr 2.6em; }
+  .bar-row { grid-template-columns: 7.5em 1fr 2em; }
+  .cat-lg { width: 84px; height: 84px; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="cat-head-clip"><ellipse cx="50" cy="57" rx="38" ry="32"/></clipPath>
+    <symbol id="cat-base" viewBox="0 0 100 100">
+      <path d="M16 44 L20 9 L46 28 Z" fill="var(--cat)" stroke="var(--cat-line)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M84 44 L80 9 L54 28 Z" fill="var(--cat)" stroke="var(--cat-line)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M23 34 L25 18 L38 28 Z" fill="var(--cat-inner)"/>
+      <path d="M77 34 L75 18 L62 28 Z" fill="var(--cat-inner)"/>
+      <ellipse cx="50" cy="57" rx="38" ry="32" fill="var(--cat)"/>
+      <g clip-path="url(#cat-head-clip)">
+        <ellipse cx="74" cy="36" rx="20" ry="16" fill="var(--cat-patch)"/>
+        <path d="M44 25 Q46 33 44 38 M50 24 L50 37 M56 25 Q54 33 56 38" stroke="var(--cat-patch)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+      <ellipse cx="50" cy="57" rx="38" ry="32" fill="none" stroke="var(--cat-line)" stroke-width="2.5"/>
+      <ellipse cx="26" cy="68" rx="6.5" ry="3.8" fill="var(--cat-inner)" opacity=".75"/>
+      <ellipse cx="74" cy="68" rx="6.5" ry="3.8" fill="var(--cat-inner)" opacity=".75"/>
+      <path d="M47 63 L53 63 L50 67 Z" fill="var(--cat-nose)" stroke="var(--cat-nose)" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M43.5 70 Q47 74 50 69.5 Q53 74 56.5 70" stroke="var(--cat-line)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M19 62 L5 59 M19 67 L5 69 M81 62 L95 59 M81 67 L95 69" stroke="var(--cat-line)" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="cat" viewBox="0 0 100 100">
+      <use href="#cat-base"/>
+      <ellipse cx="36" cy="56" rx="4.6" ry="6" fill="var(--cat-line)"/>
+      <ellipse cx="64" cy="56" rx="4.6" ry="6" fill="var(--cat-line)"/>
+      <circle cx="37.6" cy="53.6" r="1.6" fill="#fff"/>
+      <circle cx="65.6" cy="53.6" r="1.6" fill="#fff"/>
+    </symbol>
+    <symbol id="cat-happy" viewBox="0 0 100 100">
+      <use href="#cat-base"/>
+      <path d="M30 59 Q36 50 42 59 M58 59 Q64 50 70 59" stroke="var(--cat-line)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="cat-sleep" viewBox="0 0 100 100">
+      <use href="#cat-base"/>
+      <path d="M30 56 Q36 62 42 56 M58 56 Q64 62 70 56" stroke="var(--cat-line)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="paw" viewBox="0 0 100 100">
+      <g fill="currentColor"><ellipse cx="50" cy="64" rx="22" ry="18"/><ellipse cx="24" cy="40" rx="9" ry="11"/><ellipse cx="41" cy="25" rx="9" ry="11"/><ellipse cx="59" cy="25" rx="9" ry="11"/><ellipse cx="76" cy="40" rx="9" ry="11"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat"/></svg><div><h1>こころのノート</h1><small><span class="cat-name">おもち</span>といっしょに、少しずつ</small></div></div>
+    <button class="sos" id="sos-open" type="button">つらいとき</button>
+  </header>
+
+  <div class="notice" id="storage-warning" hidden>この画面では記録を保存できない状態です。プライベートブラウズを使っているときは、ふつうの画面で開いてください。</div>
+
+  <!-- ホーム -->
+  <section id="view-home" class="stack-lg">
+    <div class="card soft stack">
+      <div class="hello">
+        <svg class="cat cat-lg cat-wiggle" aria-hidden="true"><use href="#cat"/></svg>
+        <div class="bubble stack" style="gap:6px">
+          <p class="label"><span class="cat-name">おもち</span>より</p>
+          <h2 id="home-greet">来てくれて、ありがとう。</h2>
+          <p class="muted small">書けそうなら「書く」へ。しんどいときは「落ち着く」からでも大丈夫だよ。</p>
+        </div>
+      </div>
+      <div class="row">
+        <button class="primary" type="button" data-go="write">気持ちを書く</button>
+        <button type="button" data-go="calm">落ち着く</button>
+      </div>
+    </div>
+    <details class="card guide" id="guide">
+      <summary><svg class="paw" width="22" height="22" style="color:var(--accent)" aria-hidden="true"><use href="#paw"/></svg>使い方</summary>
+      <ol>
+        <li><b>気持ちがゆれたら「書く」</b>：6つの質問に順番に答えるだけ。途中でやめても、続きから書けるよ。</li>
+        <li><b>考え方のくせを選ぶ</b>：例を読んで、近いものにチェック。ぴったりじゃなくて大丈夫。</li>
+        <li><b>ときどき「振り返り」</b>：自分に出やすいくせがわかってくるよ。リワークの面談で見せるのもおすすめ。</li>
+        <li><b>しんどいときは「落ち着く」か、右上の「つらいとき」</b>：呼吸や5・4・3・2・1で、今ここに戻ってこよう。</li>
+        <li><b>週に1回くらい「データ」でバックアップ</b>：記録はこの端末の中だけにあるから、コピーしてメモアプリに貼っておいてね。</li>
+      </ol>
+    </details>
+    <div class="stack">
+      <h3>今日の「考え方のくせ」</h3>
+      <div class="card stack" id="tip"></div>
+    </div>
+    <div class="stack">
+      <h3>最近の記録</h3>
+      <div id="home-recent" class="stack"></div>
+    </div>
+    <p class="small muted">このノートは記録をこの端末の中だけに保存します。どこにも送信しません。治療の代わりではなく、主治医やリワークのスタッフと話すときの練習帳として使ってください。</p>
+  </section>
+
+  <!-- 書く（コラム法） -->
+  <section id="view-write" class="stack-lg" hidden>
+    <div class="stack">
+      <h2>気持ちを書く</h2>
+      <div class="steps" id="steps"></div>
+      <p class="small muted" id="step-name"></p>
+    </div>
+
+    <div class="step stack" data-step="0">
+      <div class="field"><label for="f-date">いつ</label><input type="date" id="f-date"></div>
+      <div class="field">
+        <label for="f-event">どんなことがあった？</label>
+        <textarea id="f-event" placeholder="例：朝、メールの返事がまだ来ていないことに気づいた"></textarea>
+      </div>
+      <div class="hint"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat"/></svg><div><span>気持ちや考えはあとで書きます。ここでは、ビデオに映るような「起きたこと」だけを書いてみてください。</span></div></div>
+    </div>
+
+    <div class="step stack" data-step="1" hidden>
+      <p><b>そのとき、どんな気持ちになった？</b>当てはまるものをいくつでも選んでください。</p>
+      <div class="chips" id="emo-chips"></div>
+      <div class="row">
+        <input type="text" id="emo-custom" placeholder="ほかの気持ち" style="flex:1;min-width:0">
+        <button type="button" id="emo-add">追加</button>
+      </div>
+      <div id="emo-before" class="stack"></div>
+      <div class="notice" id="high-warning" hidden>気持ちがかなり強いみたい。先に「落ち着く」で呼吸をしてから続けても大丈夫です。書くのは今日じゃなくてもかまいません。</div>
+    </div>
+
+    <div class="step stack" data-step="2" hidden>
+      <div class="field">
+        <label for="f-thought">そのとき、頭に浮かんだ考えは？</label>
+        <textarea id="f-thought" placeholder="例：また嫌われたんだ。私はいつもうまくやれない"></textarea>
+      </div>
+      <div class="hint"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat"/></svg><div><span>きれいな言葉にしなくて大丈夫。心の中の声を、そのまま書いてみてください。</span></div></div>
+    </div>
+
+    <div class="step stack" data-step="3" hidden>
+      <p><b>その考えに、どんな「くせ」が混ざっていそう？</b>ぴったりでなくても、近いものを選んでください。</p>
+      <div id="dist-list" class="stack"></div>
+    </div>
+
+    <div class="step stack" data-step="4" hidden>
+      <div class="field">
+        <label for="f-evidence">その考えを支える事実は？</label>
+        <textarea id="f-evidence" placeholder="例：昨日送ったメールに、まだ返事がない"></textarea>
+      </div>
+      <div class="field">
+        <label for="f-counter">その考えに合わない事実は？</label>
+        <textarea id="f-counter" placeholder="例：先週は丁寧な返事をくれた。相手は月曜はいつも忙しい"></textarea>
+      </div>
+      <div class="hint"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat-happy"/></svg><div>
+        <span>ヒント：</span>
+        <span>・大切な友だちが同じことで悩んでいたら、なんて声をかける？</span>
+        <span>・元気なときの自分なら、どう考える？</span>
+        <span>・1年後に振り返ったら、どう見える？</span>
+      </div></div>
+      <div class="field">
+        <label for="f-alt">別の見方をするなら？</label>
+        <textarea id="f-alt" placeholder="例：返事が遅いのは忙しいだけかもしれない。嫌われたと決まったわけじゃない"></textarea>
+      </div>
+    </div>
+
+    <div class="step stack" data-step="5" hidden>
+      <p><b>書き終えた今、気持ちの強さはどれくらい？</b></p>
+      <div id="emo-after" class="stack"></div>
+      <div class="field">
+        <label for="f-action">これからできる小さなこと（なくてもOK）</label>
+        <input type="text" id="f-action" placeholder="例：お昼まで待ってみる。あたたかいお茶を飲む">
+      </div>
+      <div class="hint"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat"/></svg><div><span>数字があまり変わらなくても大丈夫です。書いて外に出せたことが、もう一歩です。</span></div></div>
+    </div>
+
+    <div class="row" style="justify-content:space-between">
+      <button type="button" class="ghost" id="w-prev">もどる</button>
+      <button type="button" class="primary" id="w-next">次へ</button>
+    </div>
+    <p class="small muted">書いている途中の内容は自動で残ります。</p>
+  </section>
+
+  <!-- 振り返り -->
+  <section id="view-review" class="stack-lg" hidden>
+    <h2>振り返り</h2>
+    <div class="stats">
+      <div class="card stat"><p class="label">記録した回数</p><p class="num" id="st-count">0</p></div>
+      <div class="card stat"><p class="label">書いて軽くなった平均</p><p class="num" id="st-change">—</p></div>
+    </div>
+    <div class="card stack">
+      <h3>出やすいくせ</h3>
+      <div id="dist-bars" class="stack" style="gap:10px"></div>
+    </div>
+    <div class="stack">
+      <h3>記録</h3>
+      <div id="entry-list" class="stack"></div>
+    </div>
+  </section>
+
+  <!-- 落ち着く -->
+  <section id="view-calm" class="stack-lg" hidden>
+    <div class="stack">
+      <h2>落ち着く・心の土台づくり</h2>
+      <p class="muted">つらい記憶を扱う前に、まず「戻ってこられる場所」をつくる練習です。専門家のトラウマ治療でも、最初はこうした安定化から始めます。</p>
+    </div>
+
+    <div class="card stack" id="thermo">
+      <h3>心の温度計</h3>
+      <p class="small muted">今のしんどさは 0〜10 でどれくらい？</p>
+      <div class="emo-row" style="grid-template-columns:1fr 3em"><input type="range" id="thermo-range" min="0" max="10" value="3" aria-label="しんどさ"><output id="thermo-out">3</output></div>
+      <p class="thermo-msg" id="thermo-msg"></p>
+    </div>
+
+    <div class="card stack">
+      <h3>ゆっくり呼吸</h3>
+      <p class="small muted">4秒かけて吸って、6秒かけて吐きます。吐く息を長くすると、体が「安全だよ」と受け取りやすくなります。</p>
+      <div class="breath-stage"><div class="breath-circle" id="breath-circle"><svg class="cat" aria-hidden="true"><use id="breath-cat" href="#cat-sleep"/></svg></div></div>
+      <p id="breath-label">いっしょに、すう、はあ</p>
+      <div class="row" style="justify-content:space-between">
+        <span class="small muted" id="breath-count">0 回</span>
+        <button type="button" class="primary" id="breath-toggle">はじめる</button>
+      </div>
+    </div>
+
+    <div class="card stack">
+      <h3>5・4・3・2・1 グラウンディング</h3>
+      <p class="small muted">昔の記憶に引っぱられたとき、「今ここ」に戻ってくる練習です。見つけたら丸をタップしてください。</p>
+      <p id="g-prompt" style="font-weight:700"></p>
+      <div class="dots" id="g-dots"></div>
+      <div class="row"><button type="button" id="g-reset" class="ghost">最初から</button></div>
+    </div>
+
+    <div class="card calm stack">
+      <h3>安心できる場所</h3>
+      <p class="small">実在の場所でも、想像の場所でもかまいません。見えるもの、聞こえる音、におい、肌ざわりを書いておくと、つらいときに思い出しやすくなります。</p>
+      <textarea id="safe-place" placeholder="例：おばあちゃんの家の縁側。夏の夕方で、風鈴が鳴っていて、畳のにおいがする。足の裏がひんやりする"></textarea>
+      <p class="small muted">書いたことは自動で残ります。</p>
+    </div>
+
+    <div class="card stack">
+      <h3>心の金庫</h3>
+      <p class="small muted">つらい記憶や考えが何度も浮かぶとき、「今は扱わない」と決めて、いったんしまっておく練習です。中身は詳しく書かず、目印になる短い言葉だけにしてください。金庫を開けるのは、主治医やカウンセラーと一緒のときにしましょう。</p>
+      <div class="row">
+        <input type="text" id="vault-input" placeholder="例：あの日のこと" maxlength="30" style="flex:1;min-width:0">
+        <button type="button" class="primary" id="vault-add">しまう</button>
+      </div>
+      <div class="vault-box" id="vault-box"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat-sleep"/></svg><span id="vault-count">金庫の中：0こ</span></div>
+      <details>
+        <summary class="small muted" style="cursor:pointer">目印を見る</summary>
+        <div id="vault-list" class="stack" style="margin-top:10px"></div>
+      </details>
+    </div>
+
+    <div class="card stack">
+      <h3>自分へのやさしい言葉</h3>
+      <div class="kind-card"><svg class="cat cat-md" aria-hidden="true"><use href="#cat-happy"/></svg><p id="kind-text"></p></div>
+      <div class="row"><button type="button" id="kind-next">べつの言葉</button></div>
+      <div class="row">
+        <input type="text" id="kind-input" placeholder="自分の言葉を足す" style="flex:1;min-width:0">
+        <button type="button" id="kind-add">足す</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 設定・バックアップ -->
+  <section id="view-data" class="stack-lg" hidden>
+    <h2>データとバックアップ</h2>
+    <div class="card stack">
+      <h3>ねこの名前</h3>
+      <div class="row"><svg class="cat cat-sm" aria-hidden="true"><use href="#cat-happy"/></svg><input type="text" id="cat-name-input" maxlength="12" placeholder="おもち" aria-label="ねこの名前" style="flex:1;min-width:0"></div>
+    </div>
+    <div class="card stack">
+      <p>記録は、今使っている端末のブラウザの中にだけ保存されます。スマホとパソコンでは別々のノートになります。</p>
+      <p class="small muted">ブラウザのデータを消すと記録も消えるので、ときどきバックアップを取ってください。ほかの端末に移したいときも、同じ手順で移せます。</p>
+    </div>
+    <div class="card stack">
+      <h3>バックアップを取る</h3>
+      <p class="small muted">下のボタンを押すと、記録が文字にまとめられてコピーされます。自分あてのメモアプリなどに貼りつけて保存してください。</p>
+      <div class="row"><button type="button" class="primary" id="export-btn">記録をコピー</button></div>
+      <textarea id="export-text" readonly hidden aria-label="バックアップの文字"></textarea>
+    </div>
+    <div class="card stack">
+      <h3>バックアップから戻す</h3>
+      <p class="small muted">コピーしておいた文字を貼りつけて「戻す」を押してください。今ある記録は消えずに、足りない分が加わります。</p>
+      <textarea id="import-text" placeholder="ここに貼りつけ"></textarea>
+      <div class="row">
+        <button type="button" class="primary" id="import-btn">戻す</button>
+        <label class="btn" for="import-file" style="display:inline-flex;align-items:center">ファイルから選ぶ</label>
+        <input type="file" id="import-file" accept=".json,.txt,application/json,text/plain" hidden>
+      </div>
+      <p class="small" id="import-msg"></p>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="メニュー">
+  <div class="inner">
+    <button type="button" data-tab="home"><span class="ic"><svg class="cat cat-xs" aria-hidden="true"><use href="#cat"/></svg></span>ホーム</button>
+    <button type="button" data-tab="write"><span class="ic">✎</span>書く</button>
+    <button type="button" data-tab="review"><span class="ic">≡</span>振り返り</button>
+    <button type="button" data-tab="calm"><span class="ic">〜</span>落ち着く</button>
+    <button type="button" data-tab="data"><span class="ic">⇅</span>データ</button>
+  </div>
+</nav>
+
+<div class="overlay" id="sos" hidden role="dialog" aria-modal="true" aria-labelledby="sos-title">
+  <div class="modal stack">
+    <svg class="cat cat-md" aria-hidden="true"><use href="#cat"/></svg>
+    <h2 id="sos-title">いま、つらいんだね</h2>
+    <p>まず、足の裏が床についている感じに気づいてみてください。息をゆっくり吐いて。あなたは今、ここにいます。</p>
+    <div class="row">
+      <button type="button" class="primary" id="sos-breath">呼吸をする</button>
+      <button type="button" id="sos-ground">5・4・3・2・1をする</button>
+    </div>
+    <button type="button" id="sos-close">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  var KEY = "kokoro-note-v1";
+  var EMOTIONS = ["不安", "落ち込み", "悲しみ", "怒り", "イライラ", "焦り", "罪悪感", "恥ずかしさ", "むなしさ", "さみしさ"];
+  var DISTORTIONS = [
+    { id: "bw", name: "白黒思考", desc: "0か100かで考える", ex: "完璧にできないなら、やる意味がない" },
+    { id: "over", name: "一般化しすぎ", desc: "一度のことを「いつも」「ぜったい」に広げる", ex: "また失敗した。私はいつもこうだ" },
+    { id: "filter", name: "心のフィルター", desc: "よくないところだけが目に入る", ex: "9つほめられても、1つの注意だけが残る" },
+    { id: "disq", name: "マイナス化思考", desc: "よいことを「たまたま」と打ち消す", ex: "うまくいったのは運がよかっただけ" },
+    { id: "mind", name: "心の読みすぎ", desc: "人の気持ちを悪いほうに決めつける", ex: "返事が短い。きっと怒っている" },
+    { id: "fortune", name: "先読みの誤り", desc: "未来を悪いほうに決めつける", ex: "復職しても、どうせまた倒れる" },
+    { id: "mag", name: "拡大・縮小", desc: "失敗は大きく、できたことは小さく見る", ex: "小さなミスで全部台なしだと感じる" },
+    { id: "emo", name: "感情の決めつけ", desc: "そう感じるから、事実もそうだと思う", ex: "不安だから、きっと悪いことが起きる" },
+    { id: "should", name: "すべき思考", desc: "「〜すべき」「〜しなければ」で自分を追い込む", ex: "大人なんだから、もっとちゃんとしなきゃ" },
+    { id: "label", name: "レッテル貼り", desc: "自分や人に、ひとことで決めつけの名前をつける", ex: "私はダメ人間だ" },
+    { id: "personal", name: "自分のせい思考", desc: "関係ないことまで自分の責任だと思う", ex: "家の空気が悪いのは、私のせいだ" }
+  ];
+  var KIND = [
+    "今日ここまで来られたことを、ちゃんと数えていい。",
+    "しんどいと感じるのは、弱いからじゃない。それだけ頑張ってきたから。",
+    "休むことも、回復のための大事な仕事。",
+    "完璧じゃなくていい。半分できたら、それで十分。",
+    "あのときの自分は、あのときできる精一杯をしていた。",
+    "誰かにやさしくするみたいに、自分にもやさしくしていい。",
+    "気持ちは天気みたいなもの。雨の日も、いつか止む。",
+    "ゆっくりでも、前に進んでいる。"
+  ];
+  var STEP_NAMES = ["1. できごと", "2. 気持ち", "3. 浮かんだ考え", "4. 考え方のくせ", "5. 別の見方", "6. 今の気持ち"];
+  var SAMPLE = {
+    id: "sample", sample: true, date: "", event: "リワークの面談で「無理しないでね」と言われた",
+    emotions: [{ name: "不安", before: 70, after: 40 }, { name: "落ち込み", before: 60, after: 35 }],
+    thought: "頼りないと思われている。やっぱり私は復職なんて無理なんだ",
+    distortions: ["mind", "fortune"],
+    evidence: "「無理しないで」と言われた",
+    counter: "スタッフは誰にでもそう声をかけている。通所できていることはほめてもらえた",
+    alternative: "心配してくれているだけで、ダメだと言われたわけじゃない。少しずつ慣れていけばいい",
+    action: "帰りにお気に入りのパン屋に寄る"
+  };
+
+  var canStore = true;
+  var state = { entries: [], draft: null, safePlace: "", vault: [], kind: [], catName: "" };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var d = JSON.parse(raw);
+        state.entries = Array.isArray(d.entries) ? d.entries : [];
+        state.draft = d.draft || null;
+        state.safePlace = d.safePlace || "";
+        state.vault = Array.isArray(d.vault) ? d.vault : [];
+        state.kind = Array.isArray(d.kind) ? d.kind : [];
+        state.catName = d.catName || "";
+      }
+      localStorage.setItem(KEY + "-probe", "1");
+      localStorage.removeItem(KEY + "-probe");
+    } catch (e) { canStore = false; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); canStore = true; }
+    catch (e) { canStore = false; }
+    $("storage-warning").hidden = canStore;
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function fmtDate(s) { if (!s) return ""; var p = s.split("-"); return Number(p[1]) + "月" + Number(p[2]) + "日"; }
+  function distName(id) { for (var i = 0; i < DISTORTIONS.length; i++) if (DISTORTIONS[i].id === id) return DISTORTIONS[i].name; return id; }
+  var toastTimer;
+  function toast(msg) { var t = $("toast"); t.innerHTML = "<svg class='cat cat-xs' aria-hidden='true'><use href='#cat-happy'/></svg><span>" + esc(msg) + "</span>"; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2200); }
+
+  /* ---------- tabs ---------- */
+  var TABS = ["home", "write", "review", "calm", "data"];
+  function go(tab) {
+    TABS.forEach(function (t) { $("view-" + t).hidden = t !== tab; });
+    document.querySelectorAll("nav.tabs button").forEach(function (b) {
+      if (b.dataset.tab === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+    if (tab === "home") renderHome();
+    if (tab === "review") renderReview();
+    if (tab === "write") renderWizard();
+    window.scrollTo(0, 0);
+    try { sessionStorage.setItem(KEY + "-tab", tab); } catch (e) {}
+  }
+  document.querySelectorAll("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { go(b.dataset.tab); }); });
+  document.querySelectorAll("[data-go]").forEach(function (b) { b.addEventListener("click", function () { go(b.dataset.go); }); });
+
+  /* ---------- home ---------- */
+  function entryCard(e, open) {
+    var emo = (e.emotions || []).map(function (m) {
+      var diff = (m.after != null) ? (m.before - m.after) : null;
+      return "<span class='tag'>" + esc(m.name) + " " + m.before + (m.after != null ? " → " + m.after : "") + "</span>";
+    }).join("");
+    var dist = (e.distortions || []).map(function (d) { return "<span class='tag'>" + esc(distName(d)) + "</span>"; }).join("");
+    var head = e.sample ? "<span class='tag example'>見本</span>" : "<span class='small muted'>" + esc(fmtDate(e.date)) + "</span>";
+    var html = "<details class='card entry'" + (open ? " open" : "") + "><summary>" + head +
+      "<b>" + esc(e.event || "（できごと未記入）") + "</b><div class='tags'>" + emo + "</div></summary><dl>" +
+      (e.thought ? "<dt>浮かんだ考え</dt><dd>" + esc(e.thought) + "</dd>" : "") +
+      (dist ? "<dt>考え方のくせ</dt><dd><div class='tags'>" + dist + "</div></dd>" : "") +
+      (e.evidence ? "<dt>支える事実</dt><dd>" + esc(e.evidence) + "</dd>" : "") +
+      (e.counter ? "<dt>合わない事実</dt><dd>" + esc(e.counter) + "</dd>" : "") +
+      (e.alternative ? "<dt>別の見方</dt><dd>" + esc(e.alternative) + "</dd>" : "") +
+      (e.action ? "<dt>小さなこと</dt><dd>" + esc(e.action) + "</dd>" : "") +
+      "</dl>";
+    if (!e.sample) {
+      html += "<div class='row' style='margin-top:14px;justify-content:flex-end'><button type='button' class='danger' data-del='" + esc(e.id) + "'>この記録を消す</button></div>";
+    } else {
+      html += "<p class='small muted' style='margin-top:12px'>これは書き方の見本です。自分の記録をつけると、ここに並びます。</p>";
+    }
+    return html + "</details>";
+  }
+  function renderHome() {
+    var h = new Date().getHours();
+    $("home-greet").textContent = h < 11 ? "おはよう。来てくれて、うれしいにゃ。" : h < 18 ? "こんにちは。来てくれて、うれしいにゃ。" : "今日もおつかれさまにゃ。";
+    var day = Math.floor(Date.now() / 86400000);
+    var d = DISTORTIONS[day % DISTORTIONS.length];
+    $("tip").innerHTML = "<b>" + esc(d.name) + "</b><p>" + esc(d.desc) + "</p><p class='small muted'>例：「" + esc(d.ex) + "」</p>";
+    var list = state.entries.slice().sort(byNewest).slice(0, 2);
+    $("home-recent").innerHTML = list.length ? list.map(function (e) { return entryCard(e, false); }).join("") :
+      "<div class='card empty'><svg class='cat cat-md' aria-hidden='true'><use href='#cat-sleep'/></svg><p class='muted'>まだ記録はないよ。「気持ちを書く」から、最初の1つをつけてみよう。</p></div>";
+  }
+  function byNewest(a, b) { return (b.date + b.created) > (a.date + a.created) ? 1 : -1; }
+
+  /* ---------- wizard ---------- */
+  var step = 0;
+  function blankDraft() { return { date: today(), event: "", emotions: [], thought: "", distortions: [], evidence: "", counter: "", alternative: "", action: "" }; }
+  function draft() { if (!state.draft) state.draft = blankDraft(); return state.draft; }
+
+  function renderWizard() {
+    var d = draft();
+    $("steps").innerHTML = STEP_NAMES.map(function (_, i) { return "<svg class='paw" + (i <= step ? " on" : "") + "' aria-hidden='true'><use href='#paw'/></svg>"; }).join("");
+    $("step-name").textContent = STEP_NAMES[step];
+    document.querySelectorAll(".step").forEach(function (s) { s.hidden = Number(s.dataset.step) !== step; });
+    $("f-date").value = d.date; $("f-event").value = d.event; $("f-thought").value = d.thought;
+    $("f-evidence").value = d.evidence; $("f-counter").value = d.counter; $("f-alt").value = d.alternative; $("f-action").value = d.action;
+    renderEmoChips(); renderEmoSliders("emo-before", "before"); renderEmoSliders("emo-after", "after"); renderDist();
+    $("w-prev").disabled = step === 0;
+    $("w-next").textContent = step === STEP_NAMES.length - 1 ? "保存する" : "次へ";
+  }
+  function renderEmoChips() {
+    var d = draft();
+    var names = EMOTIONS.slice();
+    d.emotions.forEach(function (m) { if (names.indexOf(m.name) < 0) names.push(m.name); });
+    $("emo-chips").innerHTML = names.map(function (n) {
+      var on = d.emotions.some(function (m) { return m.name === n; });
+      return "<button type='button' class='chip' aria-pressed='" + on + "' data-emo='" + esc(n) + "'>" + esc(n) + "</button>";
+    }).join("");
+  }
+  function renderEmoSliders(target, key) {
+    var d = draft();
+    var el = $(target);
+    if (!d.emotions.length) { el.innerHTML = key === "before" ? "" : "<p class='muted small'>気持ちが選ばれていません。</p>"; return; }
+    el.innerHTML = (key === "before" ? "<p class='small muted'>いちばん強いときを100として、強さを決めてください。</p>" : "") +
+      d.emotions.map(function (m, i) {
+        var v = m[key] != null ? m[key] : (key === "after" ? m.before : 50);
+        return "<div class='emo-row'><span>" + esc(m.name) + "</span><input type='range' min='0' max='100' step='5' value='" + v +
+          "' data-emo-i='" + i + "' data-key='" + key + "' id='r-" + key + "-" + i + "' aria-label='" + esc(m.name) + "の強さ'><output>" + v + "</output></div>";
+      }).join("");
+    checkHigh();
+  }
+  function checkHigh() {
+    $("high-warning").hidden = !draft().emotions.some(function (m) { return (m.before || 0) >= 80; });
+  }
+  function renderDist() {
+    var d = draft();
+    $("dist-list").innerHTML = DISTORTIONS.map(function (x) {
+      var on = d.distortions.indexOf(x.id) >= 0;
+      return "<label class='dist" + (on ? " on" : "") + "'><input type='checkbox' data-dist='" + x.id + "' id='d-" + x.id + "'" + (on ? " checked" : "") + ">" +
+        "<span><b>" + esc(x.name) + "</b>" + esc(x.desc) + "<span class='ex' style='display:block'>例：「" + esc(x.ex) + "」</span></span></label>";
+    }).join("");
+  }
+
+  var textMap = { "f-date": "date", "f-event": "event", "f-thought": "thought", "f-evidence": "evidence", "f-counter": "counter", "f-alt": "alternative", "f-action": "action" };
+  Object.keys(textMap).forEach(function (id) {
+    $(id).addEventListener("input", function () { draft()[textMap[id]] = this.value; save(); });
+  });
+  $("emo-chips").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-emo]"); if (!b) return;
+    toggleEmo(b.dataset.emo);
+  });
+  function toggleEmo(name) {
+    var d = draft();
+    var idx = -1;
+    d.emotions.forEach(function (m, i) { if (m.name === name) idx = i; });
+    if (idx >= 0) d.emotions.splice(idx, 1); else d.emotions.push({ name: name, before: 50, after: null });
+    save(); renderEmoChips(); renderEmoSliders("emo-before", "before");
+  }
+  $("emo-add").addEventListener("click", function () {
+    var v = $("emo-custom").value.trim(); if (!v) return;
+    if (!draft().emotions.some(function (m) { return m.name === v; })) toggleEmo(v);
+    $("emo-custom").value = "";
+  });
+  function onRange(ev) {
+    var r = ev.target; if (!r.dataset || r.dataset.emoI == null) return;
+    var m = draft().emotions[Number(r.dataset.emoI)]; if (!m) return;
+    m[r.dataset.key] = Number(r.value);
+    r.nextElementSibling.textContent = r.value;
+    save(); if (r.dataset.key === "before") checkHigh();
+  }
+  $("emo-before").addEventListener("input", onRange);
+  $("emo-after").addEventListener("input", onRange);
+  $("dist-list").addEventListener("change", function (ev) {
+    var c = ev.target; if (!c.dataset.dist) return;
+    var d = draft(); var i = d.distortions.indexOf(c.dataset.dist);
+    if (c.checked && i < 0) d.distortions.push(c.dataset.dist);
+    if (!c.checked && i >= 0) d.distortions.splice(i, 1);
+    c.closest(".dist").classList.toggle("on", c.checked);
+    save();
+  });
+  $("w-prev").addEventListener("click", function () { if (step > 0) { step--; renderWizard(); window.scrollTo(0, 0); } });
+  $("w-next").addEventListener("click", function () {
+    if (step < STEP_NAMES.length - 1) { step++; renderWizard(); window.scrollTo(0, 0); return; }
+    var d = draft();
+    if (!d.event.trim() && !d.thought.trim()) { toast("できごとか考えを、少しだけ書いてから保存してね"); return; }
+    d.emotions.forEach(function (m) { if (m.after == null) m.after = m.before; });
+    d.id = "e" + Date.now().toString(36);
+    d.created = new Date().toISOString();
+    state.entries.push(d);
+    state.draft = null; step = 0; save();
+    toast("保存しました。書けた自分に、おつかれさま");
+    go("review");
+  });
+
+  /* ---------- review ---------- */
+  function renderReview() {
+    var es = state.entries;
+    $("st-count").textContent = es.length + " 回";
+    var diffs = [];
+    es.forEach(function (e) { (e.emotions || []).forEach(function (m) { if (m.after != null) diffs.push(m.before - m.after); }); });
+    $("st-change").textContent = diffs.length ? (Math.round(diffs.reduce(function (a, b) { return a + b; }, 0) / diffs.length)) + " ポイント" : "—";
+    var counts = {};
+    es.forEach(function (e) { (e.distortions || []).forEach(function (d) { counts[d] = (counts[d] || 0) + 1; }); });
+    var ranked = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
+    var max = ranked.length ? counts[ranked[0]] : 0;
+    $("dist-bars").innerHTML = ranked.length ? ranked.map(function (id) {
+      return "<div class='bar-row'><span>" + esc(distName(id)) + "</span><div class='bar'><i style='width:" + Math.round(counts[id] / max * 100) + "%'></i></div><span>" + counts[id] + "</span></div>";
+    }).join("") : "<p class='small muted'>記録がたまると、自分に出やすいくせがここに並びます。</p>";
+    var list = es.slice().sort(byNewest);
+    $("entry-list").innerHTML = list.length ? list.map(function (e) { return entryCard(e, false); }).join("") : entryCard(SAMPLE, true);
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-del]"); if (!b) return;
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "本当に消す（もう一度押す）"; return; }
+    state.entries = state.entries.filter(function (e) { return e.id !== b.dataset.del; });
+    save(); toast("記録を消しました");
+    if (!$("view-review").hidden) renderReview(); else renderHome();
+  });
+
+  /* ---------- calm: thermometer ---------- */
+  function renderThermo() {
+    var v = Number($("thermo-range").value);
+    $("thermo-out").textContent = v;
+    var m = $("thermo-msg");
+    m.classList.toggle("high", v >= 7);
+    m.textContent = v >= 7 ? "かなりしんどい状態です。今は考えごとや記録はお休みして、呼吸かグラウンディングをしましょう。"
+      : v >= 4 ? "少しざわざわしていますね。呼吸を何回かしてから、書くかどうか決めましょう。"
+      : "落ち着いています。この感じを体で覚えておきましょう。";
+  }
+  $("thermo-range").addEventListener("input", renderThermo);
+
+  /* ---------- calm: breathing ---------- */
+  var breathing = false, breathTimer = null, breathN = 0;
+  function breathCycle() {
+    if (!breathing) return;
+    var c = $("breath-circle");
+    c.style.transitionDuration = "4s"; c.classList.add("big"); $("breath-label").textContent = "すって…";
+    breathTimer = setTimeout(function () {
+      if (!breathing) return;
+      c.style.transitionDuration = "6s"; c.classList.remove("big"); $("breath-label").textContent = "はいて…";
+      breathTimer = setTimeout(function () { breathN++; $("breath-count").textContent = breathN + " 回"; breathCycle(); }, 6000);
+    }, 4000);
+  }
+  function startBreath() { $("breath-cat").setAttribute("href", "#cat-sleep"); breathing = true; breathN = 0; $("breath-count").textContent = "0 回"; $("breath-toggle").textContent = "やめる"; breathCycle(); }
+  function stopBreath() { breathing = false; clearTimeout(breathTimer); var c = $("breath-circle"); c.classList.remove("big"); $("breath-label").textContent = "おつかれさま"; $("breath-cat").setAttribute("href", "#cat-happy"); $("breath-toggle").textContent = "はじめる"; }
+  $("breath-toggle").addEventListener("click", function () { breathing ? stopBreath() : startBreath(); });
+
+  /* ---------- calm: grounding ---------- */
+  var G = [
+    { n: 5, t: "目に見えるものを 5つ 見つけよう" },
+    { n: 4, t: "さわれるものを 4つ 感じよう（服、いす、床…）" },
+    { n: 3, t: "聞こえる音を 3つ 探そう" },
+    { n: 2, t: "におい を 2つ 感じよう" },
+    { n: 1, t: "味 を 1つ 感じよう（お茶をひと口でも）" }
+  ];
+  var gStep = 0, gFilled = 0;
+  function renderG() {
+    if (gStep >= G.length) { $("g-prompt").textContent = "おかえりなさい。あなたは今、ここにいます。"; $("g-dots").innerHTML = ""; return; }
+    $("g-prompt").textContent = G[gStep].t;
+    var h = "";
+    for (var i = 0; i < G[gStep].n; i++) h += "<button type='button' class='dot" + (i < gFilled ? " on" : "") + "' aria-label='" + (i + 1) + "つめ'><svg aria-hidden='true'><use href='#paw'/></svg></button>";
+    $("g-dots").innerHTML = h;
+  }
+  $("g-dots").addEventListener("click", function (ev) {
+    if (!ev.target.classList.contains("dot")) return;
+    gFilled++;
+    if (gFilled >= G[gStep].n) { gStep++; gFilled = 0; }
+    renderG();
+  });
+  $("g-reset").addEventListener("click", function () { gStep = 0; gFilled = 0; renderG(); });
+
+  /* ---------- calm: safe place, vault, kind words ---------- */
+  $("safe-place").addEventListener("input", function () { state.safePlace = this.value; save(); });
+  function renderVault() {
+    $("vault-count").textContent = "金庫の中：" + state.vault.length + "こ";
+    $("vault-list").innerHTML = state.vault.length ? state.vault.map(function (v, i) {
+      return "<div class='row' style='justify-content:space-between'><span>" + esc(v.label) + "</span><button type='button' class='ghost small' data-vault-del='" + i + "'>金庫から出す</button></div>";
+    }).join("") : "<p class='small muted'>まだ何も入っていません。</p>";
+  }
+  $("vault-add").addEventListener("click", function () {
+    var v = $("vault-input").value.trim(); if (!v) return;
+    state.vault.push({ label: v, at: new Date().toISOString() }); save();
+    $("vault-input").value = "";
+    var box = $("vault-box"); box.classList.add("shut");
+    setTimeout(function () { box.classList.remove("shut"); }, 450);
+    renderVault(); toast("しまいました。今は扱わなくて大丈夫");
+  });
+  $("vault-list").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-vault-del]"); if (!b) return;
+    state.vault.splice(Number(b.dataset.vaultDel), 1); save(); renderVault();
+  });
+  var kindI = Math.floor(Math.random() * KIND.length);
+  function allKind() { return KIND.concat(state.kind); }
+  function renderKind() { var k = allKind(); $("kind-text").textContent = k[kindI % k.length]; }
+  $("kind-next").addEventListener("click", function () { kindI++; renderKind(); });
+  $("kind-add").addEventListener("click", function () {
+    var v = $("kind-input").value.trim(); if (!v) return;
+    state.kind.push(v); save(); $("kind-input").value = "";
+    kindI = allKind().length - 1; renderKind(); toast("言葉を足しました");
+  });
+
+  /* ---------- data ---------- */
+  $("export-btn").addEventListener("click", function () {
+    var text = JSON.stringify({ app: "kokoro-note", version: 1, exportedAt: new Date().toISOString(), data: state });
+    var ta = $("export-text"); ta.value = text; ta.hidden = false;
+    var done = function () { toast("コピーしました。メモアプリなどに貼りつけてね"); };
+    var fallback = function () { ta.focus(); ta.select(); toast("コピーできなかったので、文字を選んでおきました"); };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  });
+  function importText(text) {
+    var msg = $("import-msg");
+    try {
+      var obj = JSON.parse(text);
+      var d = obj && obj.data ? obj.data : obj;
+      if (!d || !Array.isArray(d.entries)) throw new Error("bad");
+      var ids = {}; state.entries.forEach(function (e) { ids[e.id] = true; });
+      var added = 0;
+      d.entries.forEach(function (e) { if (e && e.id && !ids[e.id]) { state.entries.push(e); added++; } });
+      if (!state.safePlace && d.safePlace) state.safePlace = d.safePlace;
+      var labels = {}; state.vault.forEach(function (v) { labels[v.label] = true; });
+      (d.vault || []).forEach(function (v) { if (v && v.label && !labels[v.label]) state.vault.push(v); });
+      (d.kind || []).forEach(function (k) { if (state.kind.indexOf(k) < 0) state.kind.push(k); });
+      if (!state.catName && d.catName) { state.catName = d.catName; $("cat-name-input").value = d.catName; renderCatName(); }
+      save(); renderVault(); renderKind(); $("safe-place").value = state.safePlace;
+      msg.style.color = "var(--calm)"; msg.textContent = "戻しました。新しく加わった記録：" + added + "件";
+      $("import-text").value = "";
+    } catch (e) {
+      msg.style.color = "var(--alert)"; msg.textContent = "読み込めませんでした。「記録をコピー」で作った文字を、最初から最後までそのまま貼りつけてください。";
+    }
+  }
+  $("import-btn").addEventListener("click", function () { importText($("import-text").value); });
+  $("import-file").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var r = new FileReader(); r.onload = function () { importText(String(r.result)); }; r.readAsText(f);
+    this.value = "";
+  });
+
+  /* ---------- cat name ---------- */
+  function renderCatName() {
+    var n = state.catName || "おもち";
+    document.querySelectorAll(".cat-name").forEach(function (el) { el.textContent = n; });
+  }
+  $("cat-name-input").addEventListener("input", function () { state.catName = this.value.trim(); save(); renderCatName(); });
+
+  /* ---------- SOS ---------- */
+  function openSos() { $("sos").hidden = false; $("sos-close").focus(); }
+  function closeSos() { $("sos").hidden = true; }
+  $("sos-open").addEventListener("click", openSos);
+  $("sos-close").addEventListener("click", closeSos);
+  $("sos").addEventListener("click", function (ev) { if (ev.target === this) closeSos(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeSos(); });
+  $("sos-breath").addEventListener("click", function () { closeSos(); go("calm"); if (!breathing) startBreath(); $("breath-circle").scrollIntoView({ block: "center" }); });
+  $("sos-ground").addEventListener("click", function () { closeSos(); go("calm"); gStep = 0; gFilled = 0; renderG(); $("g-prompt").scrollIntoView({ block: "center" }); });
+
+  /* ---------- boot ---------- */
+  load();
+  $("storage-warning").hidden = canStore;
+  $("safe-place").value = state.safePlace;
+  $("cat-name-input").value = state.catName;
+  renderCatName();
+  renderThermo(); renderG(); renderVault(); renderKind();
+  var startTab = "home";
+  try { var t = sessionStorage.getItem(KEY + "-tab"); if (TABS.indexOf(t) >= 0) startTab = t; } catch (e) {}
+  go(startTab);
+})();
+</script>
+
+</body>
+</html>
